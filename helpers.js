@@ -1,33 +1,29 @@
 const { Interval } = require('luxon');
 
+const defaultJoin = (a, b) =>
+  ({ ...b, ...a });
 const hasRain = t => t.precipitation > 0;
 
-const concatForecast = (memo, t) => {
-  if (memo.length === 0) {
-    return [{
-      ...t,
-      precipitation: [t.precipitation],
-    }];
-  }
+const concatForecast = (join = defaultJoin) =>
+  (memo, t) => {
+    if (memo.length === 0) {
+      return [join(t)];
+    }
 
-  const rest = memo.slice(0, -1);
-  const [last] = memo.slice(-1);
+    const rest = memo.slice(0, -1);
+    const [last] = memo.slice(-1);
 
-  if (!t.from.equals(last.to)) {
-    return memo;
-  }
+    if (!t.from.equals(last.to)) {
+      return memo;
+    }
 
-  const precipitation = [].concat(last.precipitation).concat(t.precipitation);
+    const combined = join(t, last);
 
-  return [
-    ...rest,
-    {
-      ...last,
-      precipitation: precipitation,
-      to: t.to,
-    },
-  ];
-};
+    return [
+      ...rest,
+      combined,
+    ];
+  };
 
 const asRainEvent = (t) => {
   const duration = Interval
@@ -47,10 +43,27 @@ const asRainEvent = (t) => {
   };
 };
 
+const concatRain = concatForecast((a, b) => {
+  if (!b) {
+    return {
+      ...a,
+      precipitation: [a.precipitation],
+    };
+  }
+
+  const precipitation = [...b.precipitation, a.precipitation];
+
+  return {
+    ...b,
+    precipitation: precipitation,
+    to: a.to,
+  };
+});
+
 const getRainEvents = forecast =>
   forecast
     .filter(hasRain)
-    .reduce(concatForecast, [])
+    .reduce(concatRain, [])
     .map(asRainEvent);
 
 module.exports.getRainEvents = getRainEvents;

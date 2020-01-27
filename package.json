@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "development": "env NODE_ENV=development node app.js",
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "vcr": "npx vcr"
