@@ -17,6 +17,12 @@ const init = async () => {
 
     server.route({
       method: 'GET',
+      path: '/',
+      handler: async (request, h) => 'go to /rain/{location}',
+    });
+
+    server.route({
+      method: 'GET',
       path: '/rain/{location*3}',
       handler: async (request, h) => {
         const forecast = await weatherService.forecastHourByHour(request.params.location);
@@ -26,7 +32,8 @@ const init = async () => {
         const calendar = ics.createEvents(rainEvents);
 
         const response = h.response(calendar.value);
-        response.type('text/iCal');
+        response.type('text/ical');
+
         return response;
       },
     });
