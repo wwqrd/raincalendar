@@ -25,7 +25,9 @@ const init = async () => {
 
         const calendar = ics.createEvents(rainEvents);
 
-        return calendar.value;
+        const response = h.response(calendar.value);
+        response.type('text/iCal');
+        return response;
       },
     });
 
