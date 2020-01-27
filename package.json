@@ -2,10 +2,14 @@
   "name": "weathercalendar2",
   "version": "2.0.0",
   "description": "",
-  "main": "weather_service.js",
+  "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "vcr": "npx vcr"
+  },
+  "engines": {
+    "node": "12.8.0"
   },
   "author": "",
   "license": "ISC",
