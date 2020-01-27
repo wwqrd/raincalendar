@@ -1,0 +1,20 @@
+{
+  "name": "weathercalendar2",
+  "version": "2.0.0",
+  "description": "",
+  "main": "weather_service.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "vcr": "npx vcr"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^19.0.5",
+    "axios": "^0.19.2",
+    "ics": "^2.18.0",
+    "luxon": "^1.22.0",
+    "replay": "^2.4.0",
+    "xml2js": "^0.4.23"
+  }
+}
