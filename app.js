@@ -18,7 +18,8 @@ const init = async () => {
     server.route({
       method: 'GET',
       path: '/',
-      handler: async (request, h) => 'go to /rain/{location}',
+      handler: async (request, h) =>
+        'Ensure `BASE_URL` is defined in environment variables. Go to `/rain/{location}`.',
     });
 
     server.route({
