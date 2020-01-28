@@ -29,7 +29,7 @@ class WeatherService {
   // e.g. United_Kingdom/England/London
   forecastHourByHour(location) {
     if (!location) { return Promise.reject('No `location` specified'); }
-    const endpointUrl = `/place/${location}/forecast_hour_by_hour.xml`;
+    const endpointUrl = `/place/${process.env.REGION}/${location}/forecast_hour_by_hour.xml`;
 
     return this.get(endpointUrl)
       .then((data) => {

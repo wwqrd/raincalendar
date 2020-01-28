@@ -15,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@hapi/catbox-memory": "^5.0.0",
     "@hapi/hapi": "^19.0.5",
     "axios": "^0.19.2",
     "ics": "^2.18.0",
