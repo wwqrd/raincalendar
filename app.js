@@ -58,15 +58,14 @@ const init = async () => {
       switch(true) {
         case request.params.format === 'json': {
           const response = h.response(value)
-          response.type('text/ical');
           response.header('Last-modified', lastModified.toUTCString());
           return response;
         }
         default: {
           const calendar = forecastAsCalendar(value);
           const response = h.response(calendar)
-          response.type('text/ical');
           response.header('Last-modified', lastModified.toUTCString());
+          response.type('text/ical');
           return response;
         }
       }
