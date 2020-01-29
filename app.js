@@ -1,8 +1,7 @@
 const Hapi = require('@hapi/hapi');
 const CatboxMemory = require('@hapi/catbox-memory');
-const ics = require('ics');
 const WeatherService = require('./WeatherService');
-const { getRainEvents } = require('./helpers');
+const { getRainForecast, forecastAsCalendar } = require('./helpers');
 
 if (process.env.NODE_ENV === 'development') {
   const Replay  = require('replay');
@@ -10,16 +9,12 @@ if (process.env.NODE_ENV === 'development') {
 
 const weatherService = new WeatherService(process.env.BASE_URL);
 
-const rainCal = async (location) => {
+const rainForecast = async (location) => {
   const forecast = await weatherService.forecastHourByHour(location);
 
-  const rainEvents = getRainEvents(forecast);
+  const rainForecast = getRainForecast(forecast);
 
-  const calendar = ics.createEvents(rainEvents);
-
-  console.log(calendar.value);
-
-  return calendar.value;
+  return rainForecast;
 }
 
 const init = async () => {
@@ -39,7 +34,7 @@ const init = async () => {
       ],
     });
 
-    server.method('rainCal', rainCal, {
+    server.method('rainForecast', rainForecast, {
       cache: {
         cache: 'calendar',
         expiresIn: 1000 * 60 * 60, // 1hr
@@ -52,18 +47,20 @@ const init = async () => {
       method: 'GET',
       path: '/',
       handler: async (request, h) =>
-        'Ensure `BASE_URL` is defined in environment variables. Go to `/rain/{location}`.',
+        'Ensure `BASE_URL` and `REGION` is defined in environment variables. Go to `/rain/{location}`.',
     });
 
     server.route({
       method: 'GET',
       path: '/rain/{location}',
       handler: async (request, h) => {
-        const { value, cached } = await server.methods.rainCal(request.params.location);
+        const { value, cached } = await server.methods.rainForecast(request.params.location);
 
         const lastModified = cached ? new Date(cached.stored) : new Date();
 
-        const response = h.response(value)
+        const calendar = forecastAsCalendar(value);
+
+        const response = h.response(calendar)
         response.header('Last-modified', lastModified.toUTCString());
         response.type('text/ical');
 

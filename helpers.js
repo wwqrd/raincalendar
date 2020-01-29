@@ -1,3 +1,4 @@
+const ics = require('ics');
 const { Interval } = require('luxon');
 
 const defaultJoin = (a, b) =>
@@ -25,24 +26,6 @@ const concatForecast = (join = defaultJoin) =>
     ];
   };
 
-const asRainEvent = (t) => {
-  const duration = Interval
-    .fromDateTimes(t.from, t.to)
-    .toDuration(['hours', 'minutes'])
-    .toObject();
-  const s = t.from.toObject();
-  const start = [s.year, s.month, s.day, s.hour, s.minute];
-
-  const maxPrecipitation = t.precipitation
-    .reduce((a, b) => (a > b ? a : b));
-
-  return {
-    title: `Rain ${maxPrecipitation}`,
-    start: start,
-    duration: duration,
-  };
-};
-
 const concatRain = concatForecast((a, b) => {
   if (!b) {
     return {
@@ -60,10 +43,41 @@ const concatRain = concatForecast((a, b) => {
   };
 });
 
-const getRainEvents = forecast =>
+const forecastAsEvent = (t) => {
+  const duration = Interval
+    .fromDateTimes(t.from, t.to)
+    .toDuration(['hours', 'minutes'])
+    .toObject();
+  const s = t.from.toObject();
+  const start = [s.year, s.month, s.day, s.hour, s.minute];
+
+  const maxPrecipitation = t.precipitation
+    .reduce((a, b) => (a > b ? a : b));
+  const hourlyPrecipitation = t.precipitation
+    .map(p => `${p}mm`)
+    .join(', ');
+
+  return {
+    title: `Rain (${maxPrecipitation}mm max)`,
+    description: `Hourly: ${hourlyPrecipitation}`,
+    start: start,
+    duration: duration,
+  };
+};
+
+const getRainForecast = forecast =>
   forecast
     .filter(hasRain)
-    .reduce(concatRain, [])
-    .map(asRainEvent);
+    .reduce(concatRain, []);
 
-module.exports.getRainEvents = getRainEvents;
+const forecastAsCalendar = forecast => {
+  const events = forecast
+    .map(forecastAsEvent);
+
+  const calendar = ics.createEvents(events);
+
+  return calendar.value;
+};
+
+module.exports.getRainForecast = getRainForecast;
+module.exports.forecastAsCalendar = forecastAsCalendar;
