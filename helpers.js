@@ -1,5 +1,6 @@
 const ics = require('ics');
 const { Interval } = require('luxon');
+const sparkline = require('sparkline');
 
 const defaultJoin = (a, b) =>
   ({ ...b, ...a });
@@ -51,15 +52,17 @@ const forecastAsEvent = (t) => {
   const s = t.from.toObject();
   const start = [s.year, s.month, s.day, s.hour, s.minute];
 
-  const maxPrecipitation = t.precipitation
-    .reduce((a, b) => (a > b ? a : b));
-  const hourlyPrecipitation = t.precipitation
-    .map(p => `${p}mm`)
-    .join(', ');
+  const minMax = t.precipitation
+    .reduce(
+      ({ min, max }, x) => ({
+        min: x > min ? min : x,
+        max: x < max ? max : x,
+      }), { min: t.precipitation[0], max: t.precipitation[0] });
+  const rainSpark = sparkline(t.precipitation);
 
   return {
-    title: `Rain (${maxPrecipitation}mm max)`,
-    description: `Hourly: ${hourlyPrecipitation}`,
+    title: `Rain (${minMax.max}mm max)`,
+    description: `Hourly: ${rainSpark} ${minMax.min}mm - ${minMax.max}mm`,
     start: start,
     duration: duration,
   };
@@ -68,12 +71,10 @@ const forecastAsEvent = (t) => {
 const getRainForecast = forecast =>
   forecast
     .filter(hasRain)
-    .reduce(concatRain, []);
-
-const forecastAsCalendar = forecast => {
-  const events = forecast
+    .reduce(concatRain, [])
     .map(forecastAsEvent);
 
+const forecastAsCalendar = events => {
   const calendar = ics.createEvents(events);
 
   return calendar.value;

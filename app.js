@@ -50,22 +50,44 @@ const init = async () => {
         'Ensure `BASE_URL` and `REGION` is defined in environment variables. Go to `/rain/{location}`.',
     });
 
+    const rainRoute = async (request, h) => {
+      const { value, cached } = await server.methods.rainForecast(request.params.location);
+
+      const lastModified = cached ? new Date(cached.stored) : new Date();
+
+      switch(true) {
+        case request.params.format === 'json': {
+          const response = h.response(value)
+          response.type('text/ical');
+          response.header('Last-modified', lastModified.toUTCString());
+          return response;
+        }
+        default: {
+          const calendar = forecastAsCalendar(value);
+          const response = h.response(calendar)
+          response.type('text/ical');
+          response.header('Last-modified', lastModified.toUTCString());
+          return response;
+        }
+      }
+    }
+
     server.route({
       method: 'GET',
       path: '/rain/{location}',
-      handler: async (request, h) => {
-        const { value, cached } = await server.methods.rainForecast(request.params.location);
-
-        const lastModified = cached ? new Date(cached.stored) : new Date();
-
-        const calendar = forecastAsCalendar(value);
-
-        const response = h.response(calendar)
-        response.header('Last-modified', lastModified.toUTCString());
-        response.type('text/ical');
-
-        return response;
+      handler: rainRoute,
+      options: {
+        cache: {
+          expiresIn: 1000 * 60 * 30, // 30min
+          privacy: 'public'
+        }
       },
+    });
+
+    server.route({
+      method: 'GET',
+      path: '/rain/{location}.{format}',
+      handler: rainRoute,
       options: {
         cache: {
           expiresIn: 1000 * 60 * 30, // 30min
