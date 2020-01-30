@@ -62,7 +62,7 @@ const forecastAsEvent = (t) => {
 
   return {
     title: `Rain (${minMax.max}mm max)`,
-    description: `Hourly: ${rainSpark} ${minMax.min}mm - ${minMax.max}mm`,
+    description: `Hourly: ${rainSpark} ${minMax.min}mm - ${minMax.max}mm. Weather forecast from Yr, delivered by the Norwegian Meteorological Institute and the NRK.`,
     start: start,
     duration: duration,
   };

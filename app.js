@@ -47,7 +47,7 @@ const init = async () => {
       method: 'GET',
       path: '/',
       handler: async (request, h) =>
-        'Ensure `BASE_URL` and `REGION` is defined in environment variables. Go to `/rain/{location}`.',
+        'Ensure `BASE_URL` (e.g. `http://www.yr.no`) and `REGION` (e.g. `United_Kingdom/England`) is defined in environment variables. Go to `/rain/{location}` for rain calendar. Weather forecast from Yr, delivered by the Norwegian Meteorological Institute and the NRK.',
     });
 
     const rainRoute = async (request, h) => {
