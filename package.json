@@ -6,8 +6,8 @@
   "scripts": {
     "development": "env NODE_ENV=development node app.js",
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "vcr": "npx vcr"
+    "test": "tape **/*.test.js | tap-spec",
+    "vcr": "vcr"
   },
   "engines": {
     "node": "12.8.0"
@@ -23,5 +23,9 @@
     "replay": "^2.4.0",
     "sparkline": "^0.2.0",
     "xml2js": "^0.4.23"
+  },
+  "devDependencies": {
+    "tap-spec": "^5.0.0",
+    "tape": "^4.13.0"
   }
 }

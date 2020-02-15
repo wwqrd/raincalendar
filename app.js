@@ -1,7 +1,7 @@
 const Hapi = require('@hapi/hapi');
 const CatboxMemory = require('@hapi/catbox-memory');
 const WeatherService = require('./WeatherService');
-const { getRainForecast, forecastAsCalendar } = require('./helpers');
+const { getRainEvents, getForecastAsCalendar } = require('./getForecastAsCalendar');
 
 if (process.env.NODE_ENV === 'development') {
   const Replay  = require('replay');
@@ -9,12 +9,12 @@ if (process.env.NODE_ENV === 'development') {
 
 const weatherService = new WeatherService(process.env.BASE_URL);
 
-const rainForecast = async (location) => {
+const rainEvents = async (location) => {
   const forecast = await weatherService.forecastHourByHour(location);
 
-  const rainForecast = getRainForecast(forecast);
+  const rainEvents = getRainEvents(forecast);
 
-  return rainForecast;
+  return rainEvents;
 }
 
 const init = async () => {
@@ -34,7 +34,7 @@ const init = async () => {
       ],
     });
 
-    server.method('rainForecast', rainForecast, {
+    server.method('rainEvents', rainEvents, {
       cache: {
         cache: 'calendar',
         expiresIn: 1000 * 60 * 60, // 1hr
@@ -51,7 +51,7 @@ const init = async () => {
     });
 
     const rainRoute = async (request, h) => {
-      const { value, cached } = await server.methods.rainForecast(request.params.location);
+      const { value, cached } = await server.methods.rainEvents(request.params.location);
 
       const lastModified = cached ? new Date(cached.stored) : new Date();
 
@@ -62,7 +62,7 @@ const init = async () => {
           return response;
         }
         default: {
-          const calendar = forecastAsCalendar(value);
+          const calendar = getForecastAsCalendar(value);
           const response = h.response(calendar)
           response.header('Last-modified', lastModified.toUTCString());
           response.type('text/ical');
