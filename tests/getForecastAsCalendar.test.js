@@ -2,18 +2,17 @@ const test = require('tape');
 const { getMockForecastItem, getMockForecast } = require('./helpers');
 const {
   hasRain,
-  getRainCategory,
+  getRainType,
   concatRain,
 } = require('../getForecastAsCalendar');
 
-test('getRainCategory()', (t) => {
-  t.plan(5);
+test('getRainType()', (t) => {
+  t.plan(4);
 
-  t.equal(getRainCategory(0), 0);
-  t.equal(getRainCategory(0.1), 1);
-  t.equal(getRainCategory(0.2), 2);
-  t.equal(getRainCategory(0.5), 3);
-  t.equal(getRainCategory(1), 4);
+  t.equal(getRainType(0), null);
+  t.equal(getRainType(0.1), 'Light');
+  t.equal(getRainType(2.5), 'Moderate');
+  t.equal(getRainType(5), 'Heavy');
 });
 
 test('hasRain()', (t) => {
@@ -38,13 +37,13 @@ test('[].filter(hasRain)', (t) => {
 
 test('concatRain()', (t) => {
   const mockForecast = getMockForecast(
-    [0, 0.1, 0.1, 0.2, 0.3, 0.5, 0.6, 1, 2]
+    [0, 1, 1, 3, 4, 5, 6, 1, 2]
   );
 
   const expectedOutput = [
-    { precipitation: [ 0.1, 0.1 ] },
-    { precipitation: [ 0.2, 0.3 ] },
-    { precipitation: [ 0.5, 0.6 ] },
+    { precipitation: [ 1, 1 ] },
+    { precipitation: [ 3, 4 ] },
+    { precipitation: [ 5, 6 ] },
     { precipitation: [ 1, 2 ] }
   ];
 

@@ -4,12 +4,11 @@ const sparkline = require('sparkline');
 
 const hasRain = t => t.precipitation > 0;
 
-const getRainCategory = (precipitation) => {
-  if (precipitation >= 1) { return 4; }
-  if (precipitation >= 0.5) { return 3; }
-  if (precipitation > 0.1) { return 2; }
-  if (precipitation > 0) { return 1; }
-  return 0;
+const getRainType = (precipitation) => {
+  if (precipitation >= 5) { return 'Heavy'; }
+  if (precipitation >= 2.5) { return 'Moderate'; }
+  if (precipitation > 0) { return 'Light'; }
+  return null;
 };
 
 const defaultJoin = (a, b) => ({ ...b, ...a });
@@ -51,7 +50,7 @@ const concatRain = concatForecast(
   },
   (item, previous) => {
     const isConsecutive = item.from.equals(previous.to);
-    const matchCategory = getRainCategory(previous.precipitation[0]) === getRainCategory(item.precipitation);
+    const matchCategory = getRainType(previous.precipitation[0]) === getRainType(item.precipitation);
     return isConsecutive && matchCategory;
   },
 );
@@ -70,10 +69,11 @@ const forecastAsEvent = (t) => {
         min: x > min ? min : x,
         max: x < max ? max : x,
       }), { min: t.precipitation[0], max: t.precipitation[0] });
-  const rainSpark = sparkline(t.precipitation);
+  const rainSpark = sparkline(t.precipitation.map(i => i * 10));
+  const rainType = getRainType(t.precipitation[0]);
 
   return {
-    title: `Rain (${minMax.max}mm max)`,
+    title: `${rainType} rain (${minMax.max}mm max)`,
     description: `Hourly: ${rainSpark} ${minMax.min}mm - ${minMax.max}mm. Weather forecast from Yr, delivered by the Norwegian Meteorological Institute and the NRK.`,
     start: start,
     duration: duration,
@@ -94,7 +94,7 @@ const getForecastAsCalendar = events => {
 
 module.exports = {
   hasRain,
-  getRainCategory,
+  getRainType,
   concatRain,
   forecastAsEvent,
   getRainEvents,
