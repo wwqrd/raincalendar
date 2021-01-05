@@ -17,7 +17,7 @@
   "dependencies": {
     "@hapi/catbox-memory": "^5.0.0",
     "@hapi/hapi": "^19.0.5",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "ics": "^2.18.0",
     "luxon": "^1.22.0",
     "replay": "^2.4.0",
